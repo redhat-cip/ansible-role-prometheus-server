@@ -1,35 +1,16 @@
 global:
-  scrape_interval:     15s
-  evaluation_interval: 15s
+{% for key, value in prometheus_server_globals.iteritems()|default({}) %}
+  {{ key }}: {{ value }}
+{% endfor %}
 
 rule_files:
-  - rules.d/ssl-expire.rule
-  - rules.d/up.rule
+  {{ prometheus_server_rule_files|default([])|to_nice_yaml|indent(2) }}
 
 scrape_configs:
-  - job_name: 'test'
-    static_configs:
-      - targets: ['38.145.34.215:80']
-
-  - job_name: 'SSL Availability and Monitoring'
-    metrics_path: /probe
-    params:
-      module: [http_2xx]
-    static_configs:
-      - targets:
-        - https://api.distributed-ci.io/api/v1
-        - https://www.distributed-ci.io
-        - https://docs.distributed-ci.io
-        - https://packages.distributed-ci.io
-    relabel_configs:
-      - source_labels: [__address__]
-        target_label: __param_target
-      - source_labels: [__param_target]
-        target_label: instance
-      - target_label: __address__
-        replacement: 38.145.34.215:9115  # Blackbox exporter.
+  {{ prometheus_server_scrape_configs|default([])|to_nice_yaml|indent(2) }}
 
 alerting:
+  alert_relabel_configs:
+    {{ prometheus_server_alert_relabel_configs|default([])|to_nice_yaml|indent(6) }}
   alertmanagers:
-    - static_configs:
-      - targets: ['38.145.34.215:9093']
+    {{ prometheus_server_alertmanagers|default([])|to_nice_yaml|indent(6) }}
