@@ -48,6 +48,15 @@
     dest: /etc/prometheus/prometheus.yml
   notify: prometheus-reload
 
+- name: Ensure start-up configuration is set
+  become: True
+  lineinfile:
+    path: /etc/default/prometheus
+    regexp: '^PROMETHEUS_OPTS='
+    line: 'PROMETHEUS_OPTS="--{{ " --".join(prometheus_server_opts) }}"'
+  when: prometheus_server_opts is defined
+  notify: prometheus-restart
+
 - name: Ensure prometheus is started and enabled
   become: True
   service:

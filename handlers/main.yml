@@ -20,3 +20,9 @@
   service:
     name: prometheus
     state: reloaded
+
+- name: prometheus-restart
+  become: True
+  service:
+    name: prometheus
+    state: restarted
