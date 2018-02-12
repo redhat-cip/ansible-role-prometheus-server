@@ -15,51 +15,49 @@
 # under the License.
 
 ---
-- name: Import GPG keys
-  become: True
-  rpm_key:
-    key: '{{ item }}'
-  with_items:
-      - https://packagecloud.io/prometheus-rpm/release/gpgkey
-      - https://raw.githubusercontent.com/lest/prometheus-rpm/master/RPM-GPG-KEY-prometheus-rpm
+- name: Incluse OS-specific variables
+  include_vars: '{{ ansible_os_family  }}.yml'
 
-- name: Have the prometheus repo configured
-  become: True
-  yum_repository:
-    name: prometheus
-    description: prometheus
-    baseurl: https://packagecloud.io/prometheus-rpm/release/el/7/$basearch
-    gpgcheck: yes
-    gpgkey:
-      - https://packagecloud.io/prometheus-rpm/release/gpgkey
-      - https://raw.githubusercontent.com/lest/prometheus-rpm/master/RPM-GPG-KEY-prometheus-rpm
+- fail:
+    msg: '{{ prometheus_server_package_name }}'
 
+- name: Include RPM-based repo (when necessary)
+  include_tasks: CentOS/rpm-based-repo.yml
+  when: ansible_distribution == 'CentOS'
 
 - name: Ensure prometheus is installed
   become: True
   package:
-    name: prometheus2
-    update_cache: yes
+    name: '{{ prometheus_server_package_name }}'
 
 - name: Ensure configuration is installed
   become: True
   template:
     src: etc/prometheus/prometheus.yml
-    dest: /etc/prometheus/prometheus.yml
+    dest: '{{ prometheus_server_config_path }}'
   notify: prometheus-reload
 
-- name: Ensure start-up configuration is set
+- name: Ensure start-up configuration is set (RedHat)
   become: True
   lineinfile:
     path: /etc/default/prometheus
     regexp: '^PROMETHEUS_OPTS='
     line: 'PROMETHEUS_OPTS="--{{ " --".join(prometheus_server_opts) }}"'
-  when: prometheus_server_opts is defined
+  when: prometheus_server_opts is defined and ansible_os_family == 'RedHat'
+  notify: prometheus-restart
+
+- name: Ensure start-up configuration is set (FreeBSD)
+  become: True
+  lineinfile:
+    path: /etc/rc.conf
+    regexp: '^prometheus_args='
+    line: 'prometheus_args="--{{ " --".join(prometheus_server_opts) }}"'
+  when: prometheus_server_opts is defined and ansible_os_family == 'FreeBSD'
   notify: prometheus-restart
 
 - name: Ensure prometheus is started and enabled
   become: True
   service:
-    name: prometheus
+    name: '{{ prometheus_server_service_name }}'
     state: started
     enabled: yes

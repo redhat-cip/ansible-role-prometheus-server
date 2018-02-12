@@ -1,3 +1,6 @@
+# Copyright 2018 Yanis Guenane  <yanis+ansible@guenane.org>
+# Author: Yanis Guenane  <yanis+ansible@guenane.org>
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -11,21 +14,6 @@
 # limitations under the License.
 
 ---
-dependencies: []
-
-galaxy_info:
-  author: redhat-cip
-  description: An Ansible module for the Prometheus server
-  company: "Red Hat"
-  license: "Apache 2.0"
-  min_ansible_version: 2.0
-  platforms:
-    - name: EL
-      versions:
-      - 7
-    - name: FreeBSD
-      versions:
-      - 11
-  galaxy_tags:
-    - prometheus
-    - monitoring
+prometheus_server_package_name: prometheus
+prometheus_server_service_name: prometheus
+prometheus_server_config_path: /usr/local/etc/prometheus.yml

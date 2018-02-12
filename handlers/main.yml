@@ -18,11 +18,11 @@
 - name: prometheus-reload
   become: True
   service:
-    name: prometheus
+    name: '{{ prometheus_server_service_name }}'
     state: reloaded
 
 - name: prometheus-restart
   become: True
   service:
-    name: prometheus
+    name: '{{ prometheus_server_service_name }}'
     state: restarted
