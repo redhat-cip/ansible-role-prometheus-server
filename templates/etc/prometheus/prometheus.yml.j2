@@ -1,5 +1,5 @@
 global:
-{% for key, value in prometheus_server_globals.iteritems()|default({}) %}
+{% for key, value in prometheus_server_globals.items()|default({}) %}
   {{ key }}: {{ value }}
 {% endfor %}
 
