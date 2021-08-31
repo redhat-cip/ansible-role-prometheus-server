@@ -27,7 +27,7 @@
   yum_repository:
     name: prometheus
     description: prometheus
-    baseurl: https://packagecloud.io/prometheus-rpm/release/el/7/$basearch
+    baseurl: https://packagecloud.io/prometheus-rpm/release/el/$releasever/$basearch
     gpgcheck: yes
     gpgkey:
       - https://packagecloud.io/prometheus-rpm/release/gpgkey
